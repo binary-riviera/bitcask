@@ -31,6 +31,47 @@ class BitcaskRow:
         return f'crc: {self.crc} tstamp: {self.tstamp} ksz: {self.ksz} value_sz: {self.value_sz} key: {self.key} value: {self.value}'
 
 
+class Bitcask:
+
+    def __init__(directory: str):
+        self.directory = directory
+        self.keydir = dict()
+
+    def update_keydir(self, row, file_id, value_pos):
+        pass
+
+    """
+    Below are the actual defined operatiors in the specification
+    """
+    def open(directoryName, opts=None):
+        pass
+
+    def get(key):
+        pass
+
+    def put(key, value):
+        pass
+
+    def delete(key):
+        pass
+
+    def list_keys():
+        pass
+
+    def fold(f, acc0):
+        pass
+
+    def merge():
+        pass
+
+    def sync():
+        pass
+
+    def close():
+        pass
+
+
+
 if __name__ == '__main__':
     foo = BitcaskRow(key=b'foo', value=b'bar')
     print(foo)
