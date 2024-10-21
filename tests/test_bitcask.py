@@ -64,5 +64,22 @@ class TestBitcask(unittest.TestCase):
 
         self.assertListEqual(list(bitcask.list_keys()), [b'key1', b'key2'])
 
+    @patch('uuid.uuid4')
+    def test_size_threshold_trigger(self, mock_uuid):
+        # Create a store file almost at the threshold, then check to see if putting more creates a new store file
+        mock_uuid.return_value = 'abc123abc123'
+        bitcask = Bitcask()
+        bitcask.open(DB_PATH)
+        
+        key1 = b'key1'
+        big_byte_value = b'a' * 60
+        bitcask.put(key1, big_byte_value)
+        self.assertEqual(bitcask.current_file, DB_PATH + '/' + 'abc123abc123.store')
+
+        mock_uuid.return_value = 'xyz789xyz789'
+        bitcask.put(key1, big_byte_value)
+        self.assertEqual(bitcask.current_file, DB_PATH + '/' + 'xyz789xyz789.store')
+
+
         
 

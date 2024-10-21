@@ -1,18 +1,26 @@
 # bitcask
 import os
 import uuid
-from typing import TypedDict
 
 from bitcask.bitcask_row import BitcaskRow
+from bitcask.keydir import KeyDir, KeyInfo
 
 DEFAULT_ENCODING = "utf-8"
+SIZE_THRESHOLD_BYTES = 100
 
 class BitcaskException(Exception):
     pass
 
-KeyInfo = TypedDict('KeyInfo', {'file_id': str, 'value_sz': int, 'value_pos': int, 'tstamp': int})
-
 class Bitcask:
+
+    def create_new_store(self):
+        """Create a new .store file"""
+        print('Creating new store file')
+        filename = str(uuid.uuid4()) + '.store'
+        filepath = os.path.join(self.directory, filename)
+        with open(filepath, mode='a'): pass
+        self.current_file = filepath
+
     """
     Below are the actual defined operations in the specification
     """
@@ -20,19 +28,15 @@ class Bitcask:
         """Open a new or existing Bitcask instance"""
         self.directory = directory
         if len(os.listdir(directory)) == 0:
-            print('Directory empty, creating new file...')
-            filename = str(uuid.uuid4()) + '.store'
-            filepath = os.path.join(directory, filename)
-            with open(filepath, mode='a'): pass
-            self.current_file = filepath
+            self.create_new_store()
         else:
             files = os.listdir(directory)
             filepaths = [os.path.join(directory, f) for f in files]
             self.current_file = max(filepaths, key=os.path.getmtime)
-        self.keydir: dict[bytes, KeyInfo] = {}
+        self.keydir: KeyDir = {}
         print(f'Loaded db file {self.current_file}')
 
-        # TODO: we need to construct the keydir here?
+        # TODO: When sharing between processes is enabled, we need to share the keydir instead of constructing it here
         
 
     def get(self, key: bytes) -> bytes:
@@ -51,7 +55,7 @@ class Bitcask:
     def put(self, key: bytes, value: bytes):
         """Store a key value pair in the datastore"""
 
-        if ((key is None or key is b'') or (value is None or value is b'')):
+        if ((key is None or key == b'') or (value is None or value == b'')):
             raise BitcaskException("Key and Value can't be empty")
         
         row = BitcaskRow(key, value)
@@ -65,6 +69,10 @@ class Bitcask:
                 tstamp = row.tstamp
             )
         print(f'wrote {len(row.bytes)} byte row to {self.current_file}')
+
+        if os.path.getsize(self.current_file) > SIZE_THRESHOLD_BYTES:
+            self.create_new_store()
+            
 
 
     def delete(self, key: bytes):
@@ -84,11 +92,4 @@ class Bitcask:
 
     def close(self):
         pass
-
-
-
-if __name__ == '__main__':
-    bitcask_handle = Bitcask()
-    bitcask_handle.open('./db')
-    bitcask_handle.put(b'foo', b'bar')
 
