@@ -3,7 +3,7 @@ import os
 import uuid
 from typing import TypedDict
 
-from bitcask_row import BitcaskRow
+from bitcask.bitcask_row import BitcaskRow
 
 DEFAULT_ENCODING = "utf-8"
 
@@ -39,7 +39,6 @@ class Bitcask:
         """Get a key value pair from the datastore"""
         try:
             k = self.keydir[key]
-            print(k)
             with open(k['file_id'], 'rb') as f:
                 f.seek(k['value_pos'])
                 value = f.read(k['value_sz'])
@@ -60,7 +59,6 @@ class Bitcask:
                 tstamp = row.tstamp
             )
         print(f'wrote {len(row.bytes)} byte row to {self.current_file}')
-        print(self.keydir)
 
 
     def delete(self, key: bytes):
