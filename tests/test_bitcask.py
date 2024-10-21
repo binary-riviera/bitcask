@@ -54,7 +54,15 @@ class TestBitcask(unittest.TestCase):
         emptyKey = None
         emptyValue = b''
 
-        self.assertRaises(BitcaskException, bitcask.put, emptyKey, emptyValue)        
+        self.assertRaises(BitcaskException, bitcask.put, emptyKey, emptyValue)
+
+    def test_list_keys(self):
+        bitcask = Bitcask()
+        bitcask.open(DB_PATH)
+        bitcask.put(b'key1', b'value1')
+        bitcask.put(b'key2', b'value2')
+
+        self.assertListEqual(list(bitcask.list_keys()), [b'key1', b'key2'])
 
         
 
