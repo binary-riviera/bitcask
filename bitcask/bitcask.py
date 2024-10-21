@@ -46,7 +46,7 @@ class Bitcask:
         except KeyError:
             raise BitcaskException(f"Couldn't find key {k} in keydir")
         except Exception as e:
-            raise BitcaskException(f"Couldn't PUT value, error: {e}")
+            raise BitcaskException(f"Couldn't GET value, error: {e}")
 
     def put(self, key: bytes, value: bytes):
         """Store a key value pair in the datastore"""
