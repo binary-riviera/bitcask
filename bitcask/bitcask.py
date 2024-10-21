@@ -48,6 +48,10 @@ class Bitcask:
 
     def put(self, key: bytes, value: bytes):
         """Store a key value pair in the datastore"""
+
+        if ((key is None or key is b'') or (value is None or value is b'')):
+            raise BitcaskException("Key and Value can't be empty")
+        
         row = BitcaskRow(key, value)
         with open(self.current_file, 'ab') as f:
             pre_loc = f.tell()

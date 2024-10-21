@@ -1,6 +1,6 @@
 import unittest
 
-from bitcask.bitcask import Bitcask
+from bitcask.bitcask import Bitcask, BitcaskException
 from tests.test_utils import *
 from unittest.mock import patch
 
@@ -32,9 +32,7 @@ class TestBitcask(unittest.TestCase):
         # Get the key value pair out again
         self.assertEqual(bitcask.get(key), value)
 
-    @patch('uuid.uuid4')
-    def test_multiple_insert(self, mock_uuid):
-        mock_uuid.return_value = 'abc123xyz789'
+    def test_multiple_insert(self):
         bitcask = Bitcask()
         bitcask.open(DB_PATH)
 
@@ -48,8 +46,15 @@ class TestBitcask(unittest.TestCase):
         self.assertEqual(len(bitcask.keydir), 2)
         self.assertEqual(bitcask.get(key1), value1)
         self.assertEqual(bitcask.get(key2), value2)
-        
-        
+
+    def test_empty_key_value(self):
+        bitcask = Bitcask()
+        bitcask.open(DB_PATH)
+
+        emptyKey = None
+        emptyValue = b''
+
+        self.assertRaises(BitcaskException, bitcask.put, emptyKey, emptyValue)        
 
         
 
