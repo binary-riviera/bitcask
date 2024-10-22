@@ -1,17 +1,11 @@
 import unittest
 
 from bitcask.bitcask import Bitcask, BitcaskException
+from tests.bitcask_testcase import DB_PATH, BitcaskTestCase
 from tests.test_utils import *
 from unittest.mock import patch
 
-DB_PATH = './tests/db'
-
-class TestBitcask(unittest.TestCase):
-    def setUp(self):
-        setup_db_folder(DB_PATH)
-
-    def tearDown(self):
-        teardown_db_folder(DB_PATH)
+class TestBitcask(BitcaskTestCase):
     
     @patch('uuid.uuid4')
     def test_single_insert(self, mock_uuid):
