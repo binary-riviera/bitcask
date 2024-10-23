@@ -4,7 +4,7 @@ import uuid
 
 from bitcask.bitcask_exception import BitcaskException
 from bitcask.bitcask_row import BitcaskRow
-from bitcask.keydir import KeyDir, KeyInfo
+from bitcask.keydir import KeyDir, KeyInfo, construct_keydir
 
 DEFAULT_ENCODING = "utf-8"
 SIZE_THRESHOLD_BYTES = 100
@@ -31,11 +31,12 @@ class Bitcask:
             files = os.listdir(directory)
             filepaths = [os.path.join(directory, f) for f in files]
             self.current_file = max(filepaths, key=os.path.getmtime)
-        self.keydir: KeyDir = {}
         print(f'Loaded db file {self.current_file}')
 
         # TODO: When sharing between processes is enabled, we need to share the keydir instead of constructing it here
-        
+        self.keydir: KeyDir = construct_keydir(directory)
+
+
 
     def get(self, key: bytes) -> bytes:
         """Get a key value pair from the datastore"""
