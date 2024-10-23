@@ -2,14 +2,12 @@
 import os
 import uuid
 
+from bitcask.bitcask_exception import BitcaskException
 from bitcask.bitcask_row import BitcaskRow
 from bitcask.keydir import KeyDir, KeyInfo
 
 DEFAULT_ENCODING = "utf-8"
 SIZE_THRESHOLD_BYTES = 100
-
-class BitcaskException(Exception):
-    pass
 
 class Bitcask:
 
