@@ -76,14 +76,8 @@ class TestBitcask(BitcaskTestCase):
         self.assertEqual(bitcask._current_file, DB_PATH + '/' + 'xyz789xyz789.store')
 
     @patch('uuid.uuid4')
-    def test_merge(self, mock_uuid):
+    def test_merge_simple_single_store(self, mock_uuid):
         mock_uuid.return_value = 'abc123abc123'
-        
-        """
-        To test the merge function for a single file, we need to do the following:
-        1. put multiple key value pairs for the same key
-        
-        """
         bitcask = Bitcask()
         bitcask.open(DB_PATH)
         key1 = b'key1'
@@ -103,6 +97,8 @@ class TestBitcask(BitcaskTestCase):
         new_size = os.path.getsize(bitcask._current_file)
         
         self.assertGreater(old_size, new_size)
+
+
 
         
 

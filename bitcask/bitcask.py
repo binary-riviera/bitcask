@@ -109,6 +109,9 @@ class Bitcask:
         for (key, value) in key_values:
             if value != TOMBSTONE:
                 self.put(key, value)
+        
+        # TODO: when we create the hint files we should make sure to only create them for finished files
+        
             
         
 
