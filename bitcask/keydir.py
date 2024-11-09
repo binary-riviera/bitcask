@@ -1,6 +1,6 @@
 from io import BufferedReader
 from typing import TypedDict, Optional
-from bitcask.bitcask_row import TSTAMP_BYTES
+from bitcask.utils import TSTAMP_BYTES
 import os
 
 KeyInfo = TypedDict('KeyInfo', {'file_id': str, 'value_sz': int, 'value_pos': int, 'tstamp': int})

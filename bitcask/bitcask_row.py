@@ -1,7 +1,8 @@
 from binascii import crc32
 import time
 
-TSTAMP_BYTES = 20 # FIXME: bad
+from bitcask.utils import size_to_bytes, tstamp_to_bytes
+
 
 class BitcaskRow:
     """Bitcask row to be written to the file.
@@ -17,7 +18,7 @@ class BitcaskRow:
     @property
     def bytes_no_crc(self):
         """Returns the binary representation of the row data"""
-        return self.tstamp.to_bytes(TSTAMP_BYTES, 'little') + self.ksz.to_bytes(2, 'little') + self.value_sz.to_bytes(2, 'little') + self.key + self.value
+        return tstamp_to_bytes(self.tstamp) + size_to_bytes(self.ksz) + size_to_bytes(self.value_sz) + self.key + self.value
 
     @property
     def crc(self):
@@ -33,7 +34,7 @@ class BitcaskRow:
     def value_offset(self):
         """Returns the offset before the value data starts"""
         # TODO: refactor, you don't need to calculate the bytes manually
-        return len(self.crc + self.tstamp.to_bytes(TSTAMP_BYTES, 'little') + self.ksz.to_bytes(2, 'little') + self.value_sz.to_bytes(2, 'little') + self.key)
+        return len(self.crc + tstamp_to_bytes(self.tstamp) + size_to_bytes(self.ksz) + size_to_bytes(self.value_sz) + self.key)
 
     def __str__(self):
         return f'crc: {self.crc} tstamp: {self.tstamp} ksz: {self.ksz} value_sz: {self.value_sz} key: {self.key} value: {self.value}'

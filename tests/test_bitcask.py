@@ -1,4 +1,5 @@
 import unittest
+import os
 
 from bitcask.bitcask import Bitcask, BitcaskException
 from tests.bitcask_testcase import DB_PATH, BitcaskTestCase
@@ -13,7 +14,7 @@ class TestBitcask(BitcaskTestCase):
         mock_uuid.return_value = 'abc123xyz789'
         bitcask = Bitcask()
         bitcask.open(DB_PATH)
-        self.assertEqual(bitcask.current_file, DB_PATH + '/' + 'abc123xyz789.store')
+        self.assertEqual(bitcask._current_file, DB_PATH + '/' + 'abc123xyz789.store')
 
         # Insert a key value pair
         key = b'key'
@@ -68,12 +69,40 @@ class TestBitcask(BitcaskTestCase):
         key1 = b'key1'
         big_byte_value = b'a' * 60
         bitcask.put(key1, big_byte_value)
-        self.assertEqual(bitcask.current_file, DB_PATH + '/' + 'abc123abc123.store')
+        self.assertEqual(bitcask._current_file, DB_PATH + '/' + 'abc123abc123.store')
 
         mock_uuid.return_value = 'xyz789xyz789'
         bitcask.put(key1, big_byte_value)
-        self.assertEqual(bitcask.current_file, DB_PATH + '/' + 'xyz789xyz789.store')
+        self.assertEqual(bitcask._current_file, DB_PATH + '/' + 'xyz789xyz789.store')
 
+    @patch('uuid.uuid4')
+    def test_merge(self, mock_uuid):
+        mock_uuid.return_value = 'abc123abc123'
+        
+        """
+        To test the merge function for a single file, we need to do the following:
+        1. put multiple key value pairs for the same key
+        
+        """
+        bitcask = Bitcask()
+        bitcask.open(DB_PATH)
+        key1 = b'key1'
+        bitcask.put(key1, b'abc')
+        bitcask.put(key1, b'def')
+        bitcask.put(key1, b'xyz')
+        
+        key2 = b'key2'
+        bitcask.put(key2, b'123')
+        bitcask.put(key2, b'567')
+        bitcask.put(key2, b'789')
+        
+        old_size = os.path.getsize(bitcask._current_file)
+        
+        bitcask.merge()
+
+        new_size = os.path.getsize(bitcask._current_file)
+        
+        self.assertGreater(old_size, new_size)
 
         
 

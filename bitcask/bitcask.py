@@ -1,13 +1,13 @@
-# bitcask
 import os
 import uuid
 
 from bitcask.bitcask_exception import BitcaskException
 from bitcask.bitcask_row import BitcaskRow
 from bitcask.keydir import KeyDir, KeyInfo, construct_keydir
+from pathlib import Path
 
-DEFAULT_ENCODING = "utf-8"
 SIZE_THRESHOLD_BYTES = 100
+TOMBSTONE = b'DELETED'
 
 class Bitcask:
 
@@ -17,7 +17,11 @@ class Bitcask:
         filename = str(uuid.uuid4()) + '.store'
         filepath = os.path.join(self.directory, filename)
         with open(filepath, mode='a'): pass
-        self.current_file = filepath
+        self._current_file = filepath
+    
+    def add_to_hint_file(self, key, value):
+        with open(self._current_file, 'ab') as f:
+            pass
 
     """
     Below are the actual defined operations in the specification
@@ -30,13 +34,11 @@ class Bitcask:
         else:
             files = os.listdir(directory)
             filepaths = [os.path.join(directory, f) for f in files]
-            self.current_file = max(filepaths, key=os.path.getmtime)
-        print(f'Loaded db file {self.current_file}')
+            self._current_file = max(filepaths, key=os.path.getmtime)
+        print(f'Loaded db file {self._current_file}')
 
         # TODO: When sharing between processes is enabled, we need to share the keydir instead of constructing it here
         self.keydir: KeyDir = construct_keydir(directory)
-
-
 
     def get(self, key: bytes) -> bytes:
         """Get a key value pair from the datastore"""
@@ -53,39 +55,65 @@ class Bitcask:
 
     def put(self, key: bytes, value: bytes):
         """Store a key value pair in the datastore"""
-
-        if ((key is None or key == b'') or (value is None or value == b'')):
+        if (key is None or key == b'') or (value is None or value == b''):
             raise BitcaskException("Key and Value can't be empty")
-        
+
+        if type(key) != bytes or type(value) != bytes:
+            raise BitcaskException('Key and value must be bytes type')
+
+        if value == TOMBSTONE:
+            raise BitcaskException(f"Value can't be {TOMBSTONE.decode('ascii')}, used to mark deletion")
+
         row = BitcaskRow(key, value)
-        with open(self.current_file, 'ab') as f:
+        with open(self._current_file, 'ab') as f:
             pre_loc = f.tell()
             f.write(row.bytes)
             self.keydir[key] = KeyInfo(
-                file_id = self.current_file,
+                file_id = self._current_file,
                 value_sz = row.value_sz,
                 value_pos = pre_loc + row.value_offset,
                 tstamp = row.tstamp
             )
-        print(f'wrote {len(row.bytes)} byte row to {self.current_file}')
+        print(f'wrote {len(row.bytes)} byte row to {self._current_file}')
 
-        if os.path.getsize(self.current_file) > SIZE_THRESHOLD_BYTES:
+        if os.path.getsize(self._current_file) > SIZE_THRESHOLD_BYTES:
             self.create_new_store()
             
 
 
     def delete(self, key: bytes):
         """Delete a value key from the database"""
+        self.put(key, TOMBSTONE)
 
     def list_keys(self):
         return self.keydir.keys()
 
-    def fold(f, acc0):
-        pass
-
     def merge(self):
-        pass
+        """Merge the store files, keeping only the current value for each key and removing deleted keys"""
+        # easiest way to do this is use the keydir, since it should always be up to date
+        key_values: list[tuple[bytes, bytes]] = []
+        for key in self.keydir:
+            key_values.append((key, self.get(key))) # TODO: is there anyway around having to get all of these?
+        print(f'Read {len(key_values)} values from store files')
 
+        # now we have all the values, we can delete all the store files
+        for path in Path(self.directory).glob('**/*'):
+            path.unlink()
+
+        assert len(os.listdir(self.directory)) == 0
+
+        print(f'Rewriting stores...')
+        # then we rewrite the new values to new files, and construct the hint files simultaneously
+        self.keydir = {}
+        self.create_new_store()
+        for (key, value) in key_values:
+            if value != TOMBSTONE:
+                self.put(key, value)
+            
+        
+
+
+        
     def sync(self):
         pass
 
