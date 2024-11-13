@@ -5,6 +5,7 @@ from bitcask.bitcask_exception import BitcaskException
 from bitcask.bitcask_row import BitcaskRow
 from bitcask.keydir import KeyDir, KeyInfo, construct_keydir
 from pathlib import Path
+from bitcask.hint import Hint, write_hint_file
 
 SIZE_THRESHOLD_BYTES = 100
 TOMBSTONE = b'DELETED'
@@ -106,16 +107,23 @@ class Bitcask:
         # then we rewrite the new values to new files, and construct the hint files simultaneously
         self.keydir = {}
         self.create_new_store()
+        current_hint_file = self._current_file
+        hints: list[Hint] = []
         for (key, value) in key_values:
-            if value != TOMBSTONE:
-                self.put(key, value)
-        
-        # TODO: when we create the hint files we should make sure to only create them for finished files
-        
-            
-        
-
-
+            if value == TOMBSTONE:
+                continue # we can just ignore deleted values
+            self.put(key, value)
+            hints.append(Hint(
+                timestamp=self.keydir[key]['tstamp'],
+                ksz=len(key),
+                value_sz=len(value),
+                value_pos=self.keydir[key]['value_pos'],
+                key=key
+            ))
+            if self._current_file != current_hint_file:
+                write_hint_file(current_hint_file, hints)
+                current_hint_file = self._current_file
+                hints = []    
         
     def sync(self):
         pass

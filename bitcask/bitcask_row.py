@@ -37,4 +37,4 @@ class BitcaskRow:
         return len(self.crc + tstamp_to_bytes(self.tstamp) + size_to_bytes(self.ksz) + size_to_bytes(self.value_sz) + self.key)
 
     def __str__(self):
-        return f'crc: {self.crc} tstamp: {self.tstamp} ksz: {self.ksz} value_sz: {self.value_sz} key: {self.key} value: {self.value}'
+        return f'crc: {self.crc} tstamp: {self.tstamp} ksz: {self.ksz} value_sz: {self.value_sz} key: {self.key!r} value: {self.value!r}'

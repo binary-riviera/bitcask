@@ -2,6 +2,7 @@ import unittest
 import os
 
 from bitcask.bitcask import Bitcask, BitcaskException
+from bitcask.bitcask_row import BitcaskRow
 from tests.bitcask_testcase import DB_PATH, BitcaskTestCase
 from tests.test_utils import *
 from unittest.mock import patch
@@ -91,13 +92,33 @@ class TestBitcask(BitcaskTestCase):
         bitcask.put(key2, b'789')
         
         old_size = os.path.getsize(bitcask._current_file)
-        
         bitcask.merge()
-
         new_size = os.path.getsize(bitcask._current_file)
-        
         self.assertGreater(old_size, new_size)
+        # TODO: assert that the hint file hasn't been created
+    
+    def test_merge_hint_file(self):
+        # create multiple version of several big values, and check the hint file has been created
+        bitcask = Bitcask()
+        bitcask.open(DB_PATH)
+        # in file 1, keys 1 2 3
+        bitcask.put(b'key1', b'value1')
+        bitcask.put(b'key2', b'value2')
+        bitcask.put(b'key3', b'value3')
+        # in file 2, keys 4 5 6
+        bitcask.put(b'key4', b'value4')
+        bitcask.put(b'key5', b'value5')
+        bitcask.put(b'key6', b'value6')
+        # in file 3, keys 7 8 9
+        bitcask.put(b'key7', b'value7')
+        bitcask.put(b'key8', b'value8')
+        bitcask.put(b'key9', b'value9')
+        self.assertNumStoreFiles(4)
 
+        # merge
+        bitcask.merge()
+        self.assertNumStoreFiles(4) # only unique values have been written, so no size improvement
+        self.assertNumHintFiles(3)
 
 
         

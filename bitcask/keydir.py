@@ -3,7 +3,13 @@ from typing import TypedDict, Optional
 from bitcask.utils import TSTAMP_BYTES
 import os
 
-KeyInfo = TypedDict('KeyInfo', {'file_id': str, 'value_sz': int, 'value_pos': int, 'tstamp': int})
+KeyInfo = TypedDict('KeyInfo', {
+    'file_id': str,
+    'value_sz': int,
+    'value_pos': int,
+    'tstamp': int
+})
+
 KeyDir = dict[bytes, KeyInfo]
 
 def read_row(f: BufferedReader) -> Optional[tuple[bytes, KeyInfo]]:
