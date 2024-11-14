@@ -23,8 +23,8 @@ Where possible I've tried to use all built in libraries.
 
 ## Useful commands:
 
-To run all tests run `python -m unittest discover tests`.
+To run all tests run `poetry run pytest tests`.
 
-To format using Black run `black bitcask`
+To format using Black run `poetry run black bitcask`
 
-To typecheck using Mypy run `mypy -p bitcask --check-untyped-defs`
+To typecheck using Mypy run `poetry run mypy -p bitcask --check-untyped-defs`
