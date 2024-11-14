@@ -37,5 +37,5 @@ def read_hint_file_if_exists(store_file: str) -> Optional[list[Hint]]:
     hint_file = Path(store_file).with_suffix('.hint')
     if hint_file.exists():
         with open(hint_file, 'rb') as f:
-            return map(bytes_to_hint, f.readlines())
+            return list(map(bytes_to_hint, f.readlines()))
     return None

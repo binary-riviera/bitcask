@@ -1,6 +1,7 @@
+from typing import Literal
 
 TSTAMP_BYTES = 20
-BYTE_ORDER = 'little'
+BYTE_ORDER: Literal['little', 'big'] = 'little'
 
 def tstamp_to_bytes(tstamp: int) -> bytes:
     return tstamp.to_bytes(TSTAMP_BYTES, BYTE_ORDER)
