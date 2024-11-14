@@ -14,7 +14,12 @@ Where possible I've tried to use all built in libraries.
 - [ ] add logging
 - [ ] add comprehensive e2e integration tests
 - [ ] add performance tests
-- [ ] add pyproject.tomls
+- [x] add pyproject.toml
+- [ ] use hint_files when constructing keydir
+- [ ] share bitcask db location when instance already exists
+- [ ] add mypy type checking as Git hook
+- [ ] move tests to Pytest
+- [x] add Poetry
 
 ## Useful commands:
 

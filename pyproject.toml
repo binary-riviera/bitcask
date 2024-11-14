@@ -1,0 +1,13 @@
+[tool.poetry]
+authors = ["Daniel Cripps <binary.riviera@gmail.com>"]
+description = "Python reimplementation of the Bitcask key y value database"
+name = "bitcask"
+readme = "README.md"
+version = "0.0.1"
+
+[tool.poetry.dependencies]
+python = "^3.13"
+
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core"]
