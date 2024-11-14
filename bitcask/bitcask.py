@@ -38,7 +38,6 @@ class Bitcask:
             self._current_file = max(filepaths, key=os.path.getmtime)
         print(f'Loaded db file {self._current_file}')
 
-        # TODO: When sharing between processes is enabled, we need to share the keydir instead of constructing it here
         self.keydir: KeyDir = construct_keydir(directory)
 
     def get(self, key: bytes) -> bytes:

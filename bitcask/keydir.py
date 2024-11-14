@@ -13,8 +13,7 @@ KeyInfo = TypedDict('KeyInfo', {
 KeyDir = dict[bytes, KeyInfo]
 
 def read_row(f: BufferedReader) -> Optional[tuple[bytes, KeyInfo]]:
-    crc = f.read(8) # TODO: capture this then validate the row
-
+    crc = f.read(8)
     if len(crc) < 8: # end of file reached
         return None
         

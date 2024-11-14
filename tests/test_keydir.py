@@ -7,7 +7,6 @@ class TestKeydir(BitcaskTestCase):
 
     @patch('uuid.uuid4')
     def test_read_row(self, mock_uuid):
-        # TODO: mock timestamp
         mock_uuid.return_value = 'abc123xyz789'
         bitcask = Bitcask()
         bitcask.open(DB_PATH)
