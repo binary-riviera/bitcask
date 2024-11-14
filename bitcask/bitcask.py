@@ -80,8 +80,6 @@ class Bitcask:
         if os.path.getsize(self._current_file) > SIZE_THRESHOLD_BYTES:
             self.create_new_store()
             
-
-
     def delete(self, key: bytes):
         """Delete a value key from the database"""
         self.put(key, TOMBSTONE)
