@@ -1,3 +1,2 @@
-
 class BitcaskException(Exception):
     pass

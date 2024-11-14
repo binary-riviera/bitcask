@@ -8,25 +8,28 @@ from pathlib import Path
 from bitcask.hint import Hint, write_hint_file
 
 SIZE_THRESHOLD_BYTES = 100
-TOMBSTONE = b'DELETED'
+TOMBSTONE = b"DELETED"
+
 
 class Bitcask:
 
     def create_new_store(self):
         """Create a new .store file"""
-        print('Creating new store file')
-        filename = str(uuid.uuid4()) + '.store'
+        print("Creating new store file")
+        filename = str(uuid.uuid4()) + ".store"
         filepath = os.path.join(self.directory, filename)
-        with open(filepath, mode='a'): pass
+        with open(filepath, mode="a"):
+            pass
         self._current_file = filepath
-    
+
     def add_to_hint_file(self, key, value):
-        with open(self._current_file, 'ab') as f:
+        with open(self._current_file, "ab") as f:
             pass
 
     """
     Below are the actual defined operations in the specification
     """
+
     def open(self, directory: str):
         """Open a new or existing Bitcask instance"""
         self.directory = directory
@@ -36,7 +39,7 @@ class Bitcask:
             files = os.listdir(directory)
             filepaths = [os.path.join(directory, f) for f in files]
             self._current_file = max(filepaths, key=os.path.getmtime)
-        print(f'Loaded db file {self._current_file}')
+        print(f"Loaded db file {self._current_file}")
 
         self.keydir: KeyDir = construct_keydir(directory)
 
@@ -44,9 +47,9 @@ class Bitcask:
         """Get a key value pair from the datastore"""
         try:
             k = self.keydir[key]
-            with open(k['file_id'], 'rb') as f:
-                f.seek(k['value_pos'])
-                value = f.read(k['value_sz'])
+            with open(k["file_id"], "rb") as f:
+                f.seek(k["value_pos"])
+                value = f.read(k["value_sz"])
                 return value
         except KeyError:
             raise BitcaskException(f"Couldn't find key {k} in keydir")
@@ -55,30 +58,32 @@ class Bitcask:
 
     def put(self, key: bytes, value: bytes):
         """Store a key value pair in the datastore"""
-        if (key is None or key == b'') or (value is None or value == b''):
+        if (key is None or key == b"") or (value is None or value == b""):
             raise BitcaskException("Key and Value can't be empty")
 
         if type(key) != bytes or type(value) != bytes:
-            raise BitcaskException('Key and value must be bytes type')
+            raise BitcaskException("Key and value must be bytes type")
 
         if value == TOMBSTONE:
-            raise BitcaskException(f"Value can't be {TOMBSTONE.decode('ascii')}, used to mark deletion")
+            raise BitcaskException(
+                f"Value can't be {TOMBSTONE.decode('ascii')}, used to mark deletion"
+            )
 
         row = BitcaskRow(key, value)
-        with open(self._current_file, 'ab') as f:
+        with open(self._current_file, "ab") as f:
             pre_loc = f.tell()
             f.write(row.bytes)
             self.keydir[key] = KeyInfo(
-                file_id = self._current_file,
-                value_sz = row.value_sz,
-                value_pos = pre_loc + row.value_offset,
-                tstamp = row.tstamp
+                file_id=self._current_file,
+                value_sz=row.value_sz,
+                value_pos=pre_loc + row.value_offset,
+                tstamp=row.tstamp,
             )
-        print(f'wrote {len(row.bytes)} byte row to {self._current_file}')
+        print(f"wrote {len(row.bytes)} byte row to {self._current_file}")
 
         if os.path.getsize(self._current_file) > SIZE_THRESHOLD_BYTES:
             self.create_new_store()
-            
+
     def delete(self, key: bytes):
         """Delete a value key from the database"""
         self.put(key, TOMBSTONE)
@@ -91,40 +96,43 @@ class Bitcask:
         # easiest way to do this is use the keydir, since it should always be up to date
         key_values: list[tuple[bytes, bytes]] = []
         for key in self.keydir:
-            key_values.append((key, self.get(key))) # TODO: is there anyway around having to get all of these?
-        print(f'Read {len(key_values)} values from store files')
+            key_values.append(
+                (key, self.get(key))
+            )  # TODO: is there anyway around having to get all of these?
+        print(f"Read {len(key_values)} values from store files")
 
         # now we have all the values, we can delete all the store files
-        for path in Path(self.directory).glob('**/*'):
+        for path in Path(self.directory).glob("**/*"):
             path.unlink()
 
         assert len(os.listdir(self.directory)) == 0
 
-        print(f'Rewriting stores...')
+        print(f"Rewriting stores...")
         # then we rewrite the new values to new files, and construct the hint files simultaneously
         self.keydir = {}
         self.create_new_store()
         current_hint_file = self._current_file
         hints: list[Hint] = []
-        for (key, value) in key_values:
+        for key, value in key_values:
             if value == TOMBSTONE:
-                continue # we can just ignore deleted values
+                continue  # we can just ignore deleted values
             self.put(key, value)
-            hints.append(Hint(
-                timestamp=self.keydir[key]['tstamp'],
-                ksz=len(key),
-                value_sz=len(value),
-                value_pos=self.keydir[key]['value_pos'],
-                key=key
-            ))
+            hints.append(
+                Hint(
+                    timestamp=self.keydir[key]["tstamp"],
+                    ksz=len(key),
+                    value_sz=len(value),
+                    value_pos=self.keydir[key]["value_pos"],
+                    key=key,
+                )
+            )
             if self._current_file != current_hint_file:
                 write_hint_file(current_hint_file, hints)
                 current_hint_file = self._current_file
-                hints = []    
-        
+                hints = []
+
     def sync(self):
         pass
 
     def close(self):
         pass
-
