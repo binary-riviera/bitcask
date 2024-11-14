@@ -1,5 +1,5 @@
 from unittest.mock import patch, ANY
-from bitcask.bitcask import Bitcask
+from bitcask.bitcask import Bitcask, Mode
 from tests.bitcask_testcase import DB_PATH, BitcaskTestCase
 from bitcask.keydir import construct_keydir, read_row
 
@@ -8,7 +8,7 @@ class TestKeydir(BitcaskTestCase):
     @patch('uuid.uuid4')
     def test_read_row(self, mock_uuid):
         mock_uuid.return_value = 'abc123xyz789'
-        bitcask = Bitcask()
+        bitcask = Bitcask(mode=Mode.READ_WRITE)
         bitcask.open(DB_PATH)
         key = b'key'
         value = b'value'
@@ -33,7 +33,7 @@ class TestKeydir(BitcaskTestCase):
     def test_construct_keydir(self, mock_uuid):
         # create a few big key value pairs so they're in seperate store files
         mock_uuid.side_effect = ['abc123', 'def456', 'ghi789', 'jkl123']
-        bitcask = Bitcask()
+        bitcask = Bitcask(mode=Mode.READ_WRITE)
         bitcask.open(DB_PATH)
         bigValue = b'a'*100
 

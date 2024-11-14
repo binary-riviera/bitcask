@@ -1,3 +1,4 @@
+from enum import Enum
 import os
 import uuid
 
@@ -9,6 +10,11 @@ from bitcask.hint import Hint, write_hint_file
 
 SIZE_THRESHOLD_BYTES = 100
 TOMBSTONE = b"DELETED"
+
+
+class Mode(Enum):
+    READ = "read"
+    READ_WRITE = "read_write"
 
 
 class Bitcask:
@@ -29,6 +35,10 @@ class Bitcask:
     """
     Below are the actual defined operations in the specification
     """
+
+    def __init__(self, mode=Mode.READ, sync_on_put=False):
+        self._mode = mode
+        self._sync_on_put = sync_on_put
 
     def open(self, directory: str):
         """Open a new or existing Bitcask instance"""
@@ -58,6 +68,9 @@ class Bitcask:
 
     def put(self, key: bytes, value: bytes):
         """Store a key value pair in the datastore"""
+        if self._mode == Mode.READ:
+            raise BitcaskException("Mode must be READ_WRITE to PUT")
+
         if (key is None or key == b"") or (value is None or value == b""):
             raise BitcaskException("Key and Value can't be empty")
 

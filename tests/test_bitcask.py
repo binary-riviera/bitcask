@@ -1,7 +1,7 @@
 import unittest
 import os
 
-from bitcask.bitcask import Bitcask, BitcaskException
+from bitcask.bitcask import Bitcask, BitcaskException, Mode
 from bitcask.bitcask_row import BitcaskRow
 from tests.bitcask_testcase import DB_PATH, BitcaskTestCase
 from tests.test_utils import *
@@ -13,7 +13,7 @@ class TestBitcask(BitcaskTestCase):
     def test_single_insert(self, mock_uuid):
         # Create a Bitcask instance
         mock_uuid.return_value = 'abc123xyz789'
-        bitcask = Bitcask()
+        bitcask = Bitcask(mode=Mode.READ_WRITE)
         bitcask.open(DB_PATH)
         self.assertEqual(bitcask._current_file, DB_PATH + '/' + 'abc123xyz789.store')
 
@@ -29,7 +29,7 @@ class TestBitcask(BitcaskTestCase):
         self.assertEqual(bitcask.get(key), value)
 
     def test_multiple_insert(self):
-        bitcask = Bitcask()
+        bitcask = Bitcask(mode=Mode.READ_WRITE)
         bitcask.open(DB_PATH)
 
         key1 = b'key1'
@@ -44,7 +44,7 @@ class TestBitcask(BitcaskTestCase):
         self.assertEqual(bitcask.get(key2), value2)
 
     def test_empty_key_value(self):
-        bitcask = Bitcask()
+        bitcask = Bitcask(mode=Mode.READ_WRITE)
         bitcask.open(DB_PATH)
 
         emptyKey = None
@@ -53,7 +53,7 @@ class TestBitcask(BitcaskTestCase):
         self.assertRaises(BitcaskException, bitcask.put, emptyKey, emptyValue)
 
     def test_list_keys(self):
-        bitcask = Bitcask()
+        bitcask = Bitcask(mode=Mode.READ_WRITE)
         bitcask.open(DB_PATH)
         bitcask.put(b'key1', b'value1')
         bitcask.put(b'key2', b'value2')
@@ -64,7 +64,7 @@ class TestBitcask(BitcaskTestCase):
     def test_size_threshold_trigger(self, mock_uuid):
         # Create a store file almost at the threshold, then check to see if putting more creates a new store file
         mock_uuid.return_value = 'abc123abc123'
-        bitcask = Bitcask()
+        bitcask = Bitcask(mode=Mode.READ_WRITE)
         bitcask.open(DB_PATH)
         
         key1 = b'key1'
@@ -79,7 +79,7 @@ class TestBitcask(BitcaskTestCase):
     @patch('uuid.uuid4')
     def test_merge_simple_single_store(self, mock_uuid):
         mock_uuid.return_value = 'abc123abc123'
-        bitcask = Bitcask()
+        bitcask = Bitcask(mode=Mode.READ_WRITE)
         bitcask.open(DB_PATH)
         key1 = b'key1'
         bitcask.put(key1, b'abc')
@@ -99,7 +99,7 @@ class TestBitcask(BitcaskTestCase):
     
     def test_merge_hint_file(self):
         # create multiple version of several big values, and check the hint file has been created
-        bitcask = Bitcask()
+        bitcask = Bitcask(mode=Mode.READ_WRITE)
         bitcask.open(DB_PATH)
         # in file 1, keys 1 2 3
         bitcask.put(b'key1', b'value1')

@@ -9,8 +9,17 @@ Where possible I've tried to use all built in libraries.
 
 - [ ] implement read write modes
 - [ ] implement keydir sharing across bitcask instances
+- [ ] implement sync on put and sync
 - [ ] use CRC codes to actually validate the data written and read
 - [ ] add logging
 - [ ] add comprehensive e2e integration tests
 - [ ] add performance tests
 - [ ] add pyproject.tomls
+
+## Useful commands:
+
+To run all tests run `python -m unittest discover tests`.
+
+To format using Black run `black bitcask`
+
+To typecheck using Mypy run `mypy -p bitcask --check-untyped-defs`
