@@ -12,3 +12,6 @@ python = "^3.13"
 [build-system]
 build-backend = "poetry.core.masonry.api"
 requires = ["poetry-core"]
+
+[tool.mypy]
+disallow_untyped_defs = true

@@ -18,7 +18,7 @@ Where possible I've tried to use all built in libraries.
 - [ ] use hint_files when constructing keydir
 - [ ] share bitcask db location when instance already exists
 - [ ] add mypy type checking as Git hook
-- [ ] move tests to Pytest
+- [x] move tests to Pytest
 - [x] add Poetry
 
 ## Useful commands:

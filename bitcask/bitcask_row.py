@@ -17,7 +17,7 @@ class BitcaskRow:
         self.value_sz = len(value)
 
     @property
-    def bytes_no_crc(self):
+    def bytes_no_crc(self) -> bytes:
         """Returns the binary representation of the row data"""
         return (
             tstamp_to_bytes(self.tstamp)
@@ -28,17 +28,17 @@ class BitcaskRow:
         )
 
     @property
-    def crc(self):
+    def crc(self) -> bytes:
         """Returns the binary representation of the CRC"""
         return crc32(self.bytes_no_crc).to_bytes(8, "little")
 
     @property
-    def bytes(self):
+    def bytes(self) -> bytes:
         """Returns the binary representation of the row"""
         return self.crc + self.bytes_no_crc
 
     @property
-    def value_offset(self):
+    def value_offset(self) -> int:
         """Returns the offset before the value data starts"""
         # TODO: refactor, you don't need to calculate the bytes manually
         return len(
@@ -49,5 +49,5 @@ class BitcaskRow:
             + self.key
         )
 
-    def __str__(self):
-        return f"crc: {self.crc} tstamp: {self.tstamp} ksz: {self.ksz} value_sz: {self.value_sz} key: {self.key!r} value: {self.value!r}"
+    def __str__(self) -> str:
+        return f"crc: {self.crc!r} tstamp: {self.tstamp} ksz: {self.ksz} value_sz: {self.value_sz} key: {self.key!r} value: {self.value!r}"

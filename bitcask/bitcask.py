@@ -19,7 +19,7 @@ class Mode(Enum):
 
 class Bitcask:
 
-    def create_new_store(self):
+    def create_new_store(self) -> None:
         """Create a new .store file"""
         print("Creating new store file")
         filename = str(uuid.uuid4()) + ".store"
@@ -28,19 +28,15 @@ class Bitcask:
             pass
         self._current_file = filepath
 
-    def add_to_hint_file(self, key, value):
-        with open(self._current_file, "ab") as f:
-            pass
-
     """
     Below are the actual defined operations in the specification
     """
 
-    def __init__(self, mode=Mode.READ, sync_on_put=False):
+    def __init__(self, mode: Mode = Mode.READ, sync_on_put: bool = False) -> None:
         self._mode = mode
         self._sync_on_put = sync_on_put
 
-    def open(self, directory: str):
+    def open(self, directory: str) -> None:
         """Open a new or existing Bitcask instance"""
         self.directory = directory
         if len(os.listdir(directory)) == 0:
@@ -66,7 +62,7 @@ class Bitcask:
         except Exception as e:
             raise BitcaskException(f"Couldn't GET value, error: {e}")
 
-    def put(self, key: bytes, value: bytes):
+    def put(self, key: bytes, value: bytes) -> None:
         """Store a key value pair in the datastore"""
         if self._mode == Mode.READ:
             raise BitcaskException("Mode must be READ_WRITE to PUT")
@@ -97,14 +93,14 @@ class Bitcask:
         if os.path.getsize(self._current_file) > SIZE_THRESHOLD_BYTES:
             self.create_new_store()
 
-    def delete(self, key: bytes):
+    def delete(self, key: bytes) -> None:
         """Delete a value key from the database"""
         self.put(key, TOMBSTONE)
 
-    def list_keys(self):
-        return self.keydir.keys()
+    def list_keys(self) -> list[bytes]:
+        return list(self.keydir.keys())
 
-    def merge(self):
+    def merge(self) -> None:
         """Merge the store files, keeping only the current value for each key and removing deleted keys"""
         # easiest way to do this is use the keydir, since it should always be up to date
         key_values: list[tuple[bytes, bytes]] = []
@@ -144,8 +140,8 @@ class Bitcask:
                 current_hint_file = self._current_file
                 hints = []
 
-    def sync(self):
+    def sync(self) -> None:
         pass
 
-    def close(self):
+    def close(self) -> None:
         pass
