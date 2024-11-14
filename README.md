@@ -13,3 +13,4 @@ Where possible I've tried to use all built in libraries.
 - [ ] add logging
 - [ ] add comprehensive e2e integration tests
 - [ ] add performance tests
+- [ ] add pyproject.tomls
