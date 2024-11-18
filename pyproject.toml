@@ -6,6 +6,7 @@ readme = "README.md"
 version = "0.0.1"
 
 [tool.poetry.dependencies]
+coverage = "7.6.7"
 pytest = "8.3.3"
 python = "^3.13"
 
@@ -14,4 +15,8 @@ build-backend = "poetry.core.masonry.api"
 requires = ["poetry-core"]
 
 [tool.mypy]
+check_untyped_defs = true
+disallow_any_expr = true
 disallow_untyped_defs = true
+warn_no_return = true
+warn_redundant_casts = true

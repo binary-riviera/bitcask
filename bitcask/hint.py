@@ -44,7 +44,6 @@ def bytes_to_hint(b: bytes) -> Hint:
 
 
 def write_hint_file(store_file: str, hints: list[Hint]) -> None:
-    print("Writing hint file")
     hint_file = Path(store_file).with_suffix(".hint")
     with open(hint_file, "ab") as f:
         f.writelines(map(hint_to_bytes, hints))

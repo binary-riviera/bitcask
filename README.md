@@ -25,6 +25,10 @@ Where possible I've tried to use all built in libraries.
 
 To run all tests run `poetry run pytest tests`.
 
+To generate test coverage run `poetry run coverage run -m pytest tests`
+
+To print test coverage report run `poetry run coverage report -m`
+
 To format using Black run `poetry run black bitcask`
 
 To typecheck using Mypy run `poetry run mypy -p bitcask --check-untyped-defs`
