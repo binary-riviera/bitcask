@@ -11,7 +11,7 @@ Where possible I've tried to use all built in libraries.
 - [ ] implement keydir sharing across bitcask instances
 - [ ] implement sync on put and sync
 - [ ] use CRC codes to actually validate the data written and read
-- [ ] add logging
+- [x] add logging
 - [ ] add comprehensive e2e integration tests
 - [ ] add performance tests
 - [x] add pyproject.toml
