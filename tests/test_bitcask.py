@@ -154,13 +154,8 @@ class TestBitcask(BitcaskTestCase):
             BitcaskException, "Key and value must be bytes type", bitcask.put, "key", 3
         )
 
-    def test_put_tombstone_error(self):
+    def test_delete(self):
         bitcask = Bitcask(mode=Mode.READ_WRITE)
         bitcask.open(DB_PATH)
-        self.assertRaisesRegex(
-            BitcaskException,
-            "Value can't be DELETED, used to mark deletion",
-            bitcask.put,
-            b"key",
-            b"DELETED",
-        )
+        bitcask.delete(b'key')
+        self.assertEqual(bitcask.get(b'key'), b'DELETED')

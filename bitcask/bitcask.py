@@ -78,9 +78,7 @@ class Bitcask:
             raise BitcaskException("Key and value must be bytes type")
 
         if value == TOMBSTONE:
-            raise BitcaskException(
-                f"Value can't be {TOMBSTONE.decode('ascii')}, used to mark deletion"
-            )
+            logger.info(f'Deleting key {key}')
 
         row = BitcaskRow(key, value)
         with open(self._current_file, "ab") as f:
