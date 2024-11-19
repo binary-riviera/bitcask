@@ -14,7 +14,8 @@ TOMBSTONE = b"DELETED"
 
 
 logger = logging.getLogger(__name__)
-logger.setLevel('INFO')
+logger.setLevel("INFO")
+
 
 class Mode(Enum):
     READ = "read"
@@ -61,7 +62,7 @@ class Bitcask:
                 value = f.read(k["value_sz"])
                 return value
         except KeyError:
-            raise BitcaskException(f"Couldn't find key {k} in keydir")
+            raise BitcaskException(f"Couldn't find key {key} in keydir")
         except Exception as e:
             raise BitcaskException(f"Couldn't GET value, error: {e}")
 

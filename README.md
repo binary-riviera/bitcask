@@ -20,6 +20,8 @@ Where possible I've tried to use all built in libraries.
 - [ ] add mypy type checking as Git hook
 - [x] move tests to Pytest
 - [x] add Poetry
+- [ ] add examples
+- [ ] add git hooks for formatting/tests/mypy
 
 ## Useful commands:
 
