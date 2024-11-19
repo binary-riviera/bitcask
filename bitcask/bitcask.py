@@ -1,6 +1,7 @@
 from enum import Enum
 import os
 import uuid
+import logging
 
 from bitcask.bitcask_exception import BitcaskException
 from bitcask.bitcask_row import BitcaskRow
@@ -12,6 +13,9 @@ SIZE_THRESHOLD_BYTES = 100
 TOMBSTONE = b"DELETED"
 
 
+logger = logging.getLogger(__name__)
+logger.setLevel('INFO')
+
 class Mode(Enum):
     READ = "read"
     READ_WRITE = "read_write"
@@ -21,7 +25,7 @@ class Bitcask:
 
     def create_new_store(self) -> None:
         """Create a new .store file"""
-        print("Creating new store file")
+        logger.info("Creating new store file")
         filename = str(uuid.uuid4()) + ".store"
         filepath = os.path.join(self.directory, filename)
         with open(filepath, mode="a"):
@@ -45,8 +49,7 @@ class Bitcask:
             files = os.listdir(directory)
             filepaths = [os.path.join(directory, f) for f in files]
             self._current_file = max(filepaths, key=os.path.getmtime)
-        print(f"Loaded db file {self._current_file}")
-
+        logger.info(f"Loaded db file {self._current_file}")
         self.keydir: KeyDir = construct_keydir(directory)
 
     def get(self, key: bytes) -> bytes:
@@ -88,7 +91,7 @@ class Bitcask:
                 value_pos=pre_loc + row.value_offset,
                 tstamp=row.tstamp,
             )
-        print(f"wrote {len(row.bytes)} byte row to {self._current_file}")
+        logger.info(f"wrote {len(row.bytes)} byte row to {self._current_file}")
 
         if os.path.getsize(self._current_file) > SIZE_THRESHOLD_BYTES:
             self.create_new_store()
@@ -108,7 +111,7 @@ class Bitcask:
             key_values.append(
                 (key, self.get(key))
             )  # TODO: is there anyway around having to get all of these?
-        print(f"Read {len(key_values)} values from store files")
+        logger.info(f"Read {len(key_values)} values from store files")
 
         # now we have all the values, we can delete all the store files
         for path in Path(self.directory).glob("**/*"):
@@ -116,7 +119,7 @@ class Bitcask:
 
         assert len(os.listdir(self.directory)) == 0
 
-        print(f"Rewriting stores...")
+        logger.info(f"Rewriting stores...")
         # then we rewrite the new values to new files, and construct the hint files simultaneously
         self.keydir = {}
         self.create_new_store()

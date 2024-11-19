@@ -23,7 +23,7 @@ Where possible I've tried to use all built in libraries.
 
 ## Useful commands:
 
-To run all tests run `poetry run pytest tests`.
+To run all tests run `poetry run pytest tests`
 
 To generate test coverage run `poetry run coverage run -m pytest tests`
 
