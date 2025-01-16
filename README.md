@@ -7,7 +7,7 @@ Where possible I've tried to use all built in libraries.
 
 ## TODO:
 
-- [ ] implement read write modes
+- [x] implement read write modes
 - [ ] implement keydir sharing across bitcask instances
 - [ ] implement sync on put and sync
 - [ ] use CRC codes to actually validate the data written and read

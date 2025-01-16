@@ -102,7 +102,7 @@ class TestBitcask(BitcaskTestCase):
         bitcask.merge()
         new_size = os.path.getsize(bitcask._current_file)
         self.assertGreater(old_size, new_size)
-        # TODO: assert that the hint file hasn't been created
+        self.assertNumHintFiles(0)
 
     def test_merge_hint_file(self):
         # create multiple version of several big values, and check the hint file has been created
@@ -157,5 +157,5 @@ class TestBitcask(BitcaskTestCase):
     def test_delete(self):
         bitcask = Bitcask(mode=Mode.READ_WRITE)
         bitcask.open(DB_PATH)
-        bitcask.delete(b'key')
-        self.assertEqual(bitcask.get(b'key'), b'DELETED')
+        bitcask.delete(b"key")
+        self.assertEqual(bitcask.get(b"key"), b"DELETED")
