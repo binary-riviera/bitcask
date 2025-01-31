@@ -2,6 +2,7 @@ from enum import Enum
 import os
 import uuid
 import logging
+import sys
 
 from bitcask.bitcask_exception import BitcaskException
 from bitcask.bitcask_row import BitcaskRow
@@ -12,9 +13,11 @@ from bitcask.hint import Hint, write_hint_file
 SIZE_THRESHOLD_BYTES = 100
 TOMBSTONE = b"DELETED"
 
-
+logging.basicConfig(
+    level='INFO',
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S")
 logger = logging.getLogger(__name__)
-logger.setLevel("INFO")
 
 
 class Mode(Enum):
@@ -38,6 +41,7 @@ class Bitcask:
     """
 
     def __init__(self, mode: Mode = Mode.READ, sync_on_put: bool = False) -> None:
+        logger.info(f"Opened bitcask instance in {mode}")
         self._mode = mode
         self._sync_on_put = sync_on_put
 

@@ -5,7 +5,7 @@ using the original [whitepaper](https://riak.com/assets/bitcask-intro.pdf) in Py
 
 Where possible I've tried to use all built in libraries.
 
-## TODO:
+## To Do:
 
 - [x] implement read write modes
 - [ ] implement keydir sharing across bitcask instances
