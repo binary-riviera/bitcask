@@ -1,3 +1,4 @@
+import logging
 import unittest
 
 from tests.test_utils import setup_db_folder, teardown_db_folder

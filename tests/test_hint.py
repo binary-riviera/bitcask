@@ -11,9 +11,8 @@ class TestHint(BitcaskTestCase):
         new_hint = bytes_to_hint(bytes)
         self.assertTupleEqual(hint, new_hint)
 
-    
     def test_read_hint_file_if_exists(self):
-        self.assertIsNone(read_hint_file_if_exists('incorrect_file'))
-        with open(DB_PATH + '/correct_file.hint', mode="a"):
+        self.assertIsNone(read_hint_file_if_exists("incorrect_file"))
+        with open(DB_PATH + "/correct_file.hint", mode="a"):
             pass
-        self.assertIsNotNone(read_hint_file_if_exists(DB_PATH + '/correct_file'))
+        self.assertIsNotNone(read_hint_file_if_exists(DB_PATH + "/correct_file"))

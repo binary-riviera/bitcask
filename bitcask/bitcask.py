@@ -14,9 +14,10 @@ SIZE_THRESHOLD_BYTES = 100
 TOMBSTONE = b"DELETED"
 
 logging.basicConfig(
-    level='INFO',
+    level="INFO",
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S")
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
 logger = logging.getLogger(__name__)
 
 
@@ -29,11 +30,11 @@ class Bitcask:
 
     def create_new_store(self) -> None:
         """Create a new .store file"""
-        logger.info("Creating new store file")
         filename = str(uuid.uuid4()) + ".store"
         filepath = os.path.join(self.directory, filename)
         with open(filepath, mode="a"):
             pass
+        logger.info(f"created new store file {filename}")
         self._current_file = filepath
 
     """
@@ -54,7 +55,7 @@ class Bitcask:
             files = os.listdir(directory)
             filepaths = [os.path.join(directory, f) for f in files]
             self._current_file = max(filepaths, key=os.path.getmtime)
-        logger.info(f"Loaded db file {self._current_file}")
+        logger.info(f"loaded db file {self._current_file}")
         self.keydir: KeyDir = construct_keydir(directory)
 
     def get(self, key: bytes) -> bytes:
@@ -82,12 +83,13 @@ class Bitcask:
             raise BitcaskException("Key and value must be bytes type")
 
         if value == TOMBSTONE:
-            logger.info(f'Deleting key {key}')
+            logger.info(f"Deleting key {key}")
 
         row = BitcaskRow(key, value)
         with open(self._current_file, "ab") as f:
             pre_loc = f.tell()
             f.write(row.bytes)
+            logger.info(pre_loc + row.value_offset)
             self.keydir[key] = KeyInfo(
                 file_id=self._current_file,
                 value_sz=row.value_sz,
@@ -116,13 +118,13 @@ class Bitcask:
             )  # TODO: is there anyway around having to get all of these?
         logger.info(f"Read {len(key_values)} values from store files")
 
-        # now we have all the values, we can delete all the store files
+        # now we have all the values, we can delete all the files
         for path in Path(self.directory).glob("**/*"):
             path.unlink()
 
         assert len(os.listdir(self.directory)) == 0
 
-        logger.info(f"Rewriting stores...")
+        logger.debug(f"Rewriting stores and constructing hint files...")
         # then we rewrite the new values to new files, and construct the hint files simultaneously
         self.keydir = {}
         self.create_new_store()
@@ -132,6 +134,7 @@ class Bitcask:
             if value == TOMBSTONE:
                 continue  # we can just ignore deleted values
             self.put(key, value)
+            logger.debug(f"key: {key} value: {value}")
             hints.append(
                 Hint(
                     timestamp=self.keydir[key]["tstamp"],
@@ -143,6 +146,9 @@ class Bitcask:
             )
             if self._current_file != current_hint_file:
                 write_hint_file(current_hint_file, hints)
+                logger.debug(
+                    f"Wrote {len(hints)} hints to hint file {current_hint_file}"
+                )
                 current_hint_file = self._current_file
                 hints = []
 
