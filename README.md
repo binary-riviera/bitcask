@@ -15,7 +15,7 @@ Where possible I've tried to use all built in libraries.
 - [ ] add comprehensive e2e integration tests
 - [ ] add performance tests
 - [x] add pyproject.toml
-- [ ] use hint_files when constructing keydir
+- [x] use hint_files when constructing keydir
 - [ ] share bitcask db location when instance already exists
 - [ ] add mypy type checking as Git hook
 - [x] move tests to Pytest
