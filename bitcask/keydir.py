@@ -79,5 +79,4 @@ def construct_keydir(directory: str) -> KeyDir:
                 while (key_entry := read_row_store_file(f)) is not None:
                     key, key_info = key_entry
                     keydir[key] = key_info
-    logger.debug(keydir)
     return keydir

@@ -134,7 +134,6 @@ class Bitcask:
             if value == TOMBSTONE:
                 continue  # we can just ignore deleted values
             self.put(key, value)
-            logger.debug(f"key: {key} value: {value}")
             hints.append(
                 Hint(
                     timestamp=self.keydir[key]["tstamp"],
