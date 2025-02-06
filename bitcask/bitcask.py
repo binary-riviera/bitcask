@@ -44,6 +44,7 @@ class Bitcask:
             server_socket.bind(("localhost", port))
             server_socket.listen(MAX_QUEUED_CONNECTIONS)
             self._server_socket = server_socket
+            logger.info(f"opened socket server on port {port}")
         except Exception as e:
             raise BitcaskException(f"Couldn't start server socket, error: {e}")
 

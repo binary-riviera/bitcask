@@ -2,7 +2,6 @@ import socket
 import os
 
 from bitcask.bitcask import Bitcask, BitcaskException, Mode
-from bitcask.bitcask_row import BitcaskRow
 from tests.bitcask_testcase import DB_PATH, BitcaskTestCase
 from tests.test_utils import *
 from unittest.mock import patch
@@ -58,6 +57,7 @@ class TestBitcask(BitcaskTestCase):
             emptyKey,
             emptyValue,
         )
+        bitcask.close()
 
     def test_list_keys(self):
         bitcask = Bitcask(mode=Mode.READ_WRITE)
@@ -178,7 +178,6 @@ class TestBitcask(BitcaskTestCase):
         mock_socket_instance.bind.assert_called_once_with(("localhost", 12345))
         mock_socket_instance.listen.assert_called_once_with(5)
         self.assertIsNotNone(bitcask._server_socket)
-        bitcask.close()
 
     @patch("socket.socket")
     def test_open_server_error(self, mock_socket):
@@ -188,4 +187,10 @@ class TestBitcask(BitcaskTestCase):
             BitcaskException, "Couldn't start server socket, error: socket error"
         ):
             bitcask = Bitcask(mode=Mode.READ_WRITE)
-            bitcask.close()
+
+    def test_multiple_readwrite_error(self):
+        bitcask1 = Bitcask(mode=Mode.READ_WRITE)
+        with self.assertRaisesRegex(BitcaskException, r"Couldn't start server socket, error: \[Errno 48\] Address already in use"):
+            bitcask2 = Bitcask(mode=Mode.READ_WRITE)
+            bitcask2.close()
+        bitcask1.close()
