@@ -154,4 +154,4 @@ class Bitcask:
         pass
 
     def close(self) -> None:
-        pass
+        pass  # at the moment don't need to do anything here, after sync is implemented we need to sync() before close
