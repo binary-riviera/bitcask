@@ -22,7 +22,7 @@ Where possible I've tried to use all built in libraries.
 - [x] add Poetry
 - [ ] add examples
 - [ ] add git hooks for formatting/tests/mypy
-- [ ] read file size from environmental variables
+- [ ] read file size and port number from environmental variables
 - [ ] implement LRU caching for smaller values
 
 ## Useful commands:

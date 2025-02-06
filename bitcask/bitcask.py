@@ -8,9 +8,11 @@ from bitcask.bitcask_row import BitcaskRow
 from bitcask.keydir import KeyDir, KeyInfo, construct_keydir
 from pathlib import Path
 from bitcask.hint import Hint, write_hint_file
+import socket
 
 SIZE_THRESHOLD_BYTES = 100
 TOMBSTONE = b"DELETED"
+MAX_QUEUED_CONNECTIONS = 5
 
 logging.basicConfig(
     level="INFO",
@@ -36,6 +38,15 @@ class Bitcask:
         logger.info(f"created new store file {filename}")
         self._current_file = filepath
 
+    def open_server(self, port: int = 12345) -> None:
+        try:
+            server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            server_socket.bind(("localhost", port))
+            server_socket.listen(MAX_QUEUED_CONNECTIONS)
+            self._server_socket = server_socket
+        except Exception as e:
+            raise BitcaskException(f"Couldn't start server socket, error: {e}")
+
     """
     Below are the actual defined operations in the specification
     """
@@ -44,6 +55,8 @@ class Bitcask:
         logger.info(f"Opened bitcask instance in {mode}")
         self._mode = mode
         self._sync_on_put = sync_on_put
+        if mode is Mode.READ_WRITE:
+            self.open_server()
 
     def open(self, directory: str) -> None:
         """Open a new or existing Bitcask instance"""
@@ -154,4 +167,8 @@ class Bitcask:
         pass
 
     def close(self) -> None:
-        pass  # at the moment don't need to do anything here, after sync is implemented we need to sync() before close
+        # TODO: after sync is implemented we need to sync() before close
+        if self._server_socket:
+            self._server_socket.close()
+            logger.info("server socket closed")
+            del self._server_socket

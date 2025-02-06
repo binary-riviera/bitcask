@@ -1,4 +1,4 @@
-import unittest
+import socket
 import os
 
 from bitcask.bitcask import Bitcask, BitcaskException, Mode
@@ -169,3 +169,23 @@ class TestBitcask(BitcaskTestCase):
         bitcask.open(DB_PATH)
         bitcask.delete(b"key")
         self.assertEqual(bitcask.get(b"key"), b"DELETED")
+
+    @patch("socket.socket")
+    def test_open_server(self, mock_socket):
+        bitcask = Bitcask(mode=Mode.READ_WRITE)
+        mock_socket.assert_called_once_with(socket.AF_INET, socket.SOCK_STREAM)
+        mock_socket_instance = mock_socket.return_value
+        mock_socket_instance.bind.assert_called_once_with(("localhost", 12345))
+        mock_socket_instance.listen.assert_called_once_with(5)
+        self.assertIsNotNone(bitcask._server_socket)
+        bitcask.close()
+
+    @patch("socket.socket")
+    def test_open_server_error(self, mock_socket):
+        mock_socket_instance = mock_socket.return_value
+        mock_socket_instance.bind.side_effect = socket.error("socket error")
+        with self.assertRaisesRegex(
+            BitcaskException, "Couldn't start server socket, error: socket error"
+        ):
+            bitcask = Bitcask(mode=Mode.READ_WRITE)
+            bitcask.close()
