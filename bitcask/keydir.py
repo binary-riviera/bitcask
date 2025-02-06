@@ -2,7 +2,6 @@ from io import BufferedReader
 import logging
 from typing import TypedDict, Optional
 from bitcask.utils import (
-    BYTE_ORDER,
     TSTAMP_BYTES,
     pos_from_bytes,
     size_from_bytes,

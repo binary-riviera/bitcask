@@ -147,6 +147,14 @@ class TestBitcask(BitcaskTestCase):
             BitcaskException, "Couldn't find key b'key' in keydir", bitcask.get, b"key"
         )
 
+    def test_get_generic_error(self):
+        bitcask = Bitcask(mode=Mode.READ_WRITE)
+        bitcask.open(DB_PATH)
+        bitcask.keydir[b'key'] = None
+        with self.assertRaisesRegex(BitcaskException, "Couldn't GET value, error: 'NoneType' object is not subscriptable"):
+            bitcask.get(b'key')
+ 
+
     def test_wrong_type_key_value(self):
         bitcask = Bitcask(mode=Mode.READ_WRITE)
         bitcask.open(DB_PATH)
@@ -159,3 +167,4 @@ class TestBitcask(BitcaskTestCase):
         bitcask.open(DB_PATH)
         bitcask.delete(b"key")
         self.assertEqual(bitcask.get(b"key"), b"DELETED")
+    

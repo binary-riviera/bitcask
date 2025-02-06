@@ -2,7 +2,6 @@ from enum import Enum
 import os
 import uuid
 import logging
-import sys
 
 from bitcask.bitcask_exception import BitcaskException
 from bitcask.bitcask_row import BitcaskRow
