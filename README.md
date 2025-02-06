@@ -10,7 +10,7 @@ Where possible I've tried to use all built in libraries.
 - [x] implement read write modes
 - [ ] implement keydir sharing across bitcask instances
 - [ ] implement sync on put and sync
-- [ ] use CRC codes to actually validate the data written and read
+- [ ] add option to use CRC codes to actually validate the data written and read
 - [x] add logging
 - [ ] add comprehensive e2e integration tests
 - [ ] add performance tests
@@ -22,6 +22,8 @@ Where possible I've tried to use all built in libraries.
 - [x] add Poetry
 - [ ] add examples
 - [ ] add git hooks for formatting/tests/mypy
+- [ ] read file size from environmental variables
+- [ ] implement LRU caching for smaller values
 
 ## Useful commands:
 

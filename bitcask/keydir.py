@@ -47,7 +47,7 @@ def read_row_hint_file(f: BufferedReader) -> Optional[tuple[bytes, KeyInfo]]:
     return (
         key,
         KeyInfo(
-            file_id=f.name.replace(".hint", ".store"),
+            file_id=f.name.replace(".hint", ".store"), # type: ignore[misc]
             value_sz=value_sz,
             value_pos=value_pos,
             tstamp=tstamp,

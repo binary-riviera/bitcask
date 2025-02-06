@@ -66,7 +66,7 @@ class Bitcask:
                 value = f.read(k["value_sz"])
                 return value
         except KeyError:
-            raise BitcaskException(f"Couldn't find key {key} in keydir")
+            raise BitcaskException(f"Couldn't find key {key!r} in keydir")
         except Exception as e:
             raise BitcaskException(f"Couldn't GET value, error: {e}")
 
@@ -82,7 +82,7 @@ class Bitcask:
             raise BitcaskException("Key and value must be bytes type")
 
         if value == TOMBSTONE:
-            logger.info(f"Deleting key {key}")
+            logger.info(f"Deleting key {key!r}")
 
         row = BitcaskRow(key, value)
         with open(self._current_file, "ab") as f:
