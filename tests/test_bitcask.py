@@ -13,7 +13,7 @@ class TestBitcask(BitcaskTestCase):
     def test_single_insert(self, mock_uuid):
         # Create a Bitcask instance
         mock_uuid.return_value = "abc123xyz789"
-        bitcask = Bitcask(mode=Mode.READ_WRITE)
+        bitcask = Bitcask(mode=Mode.READ_WRITE, run_isolated=True)
         bitcask.open(DB_PATH)
         self.assertEqual(bitcask._current_file, DB_PATH + "/" + "abc123xyz789.store")
 
@@ -29,7 +29,7 @@ class TestBitcask(BitcaskTestCase):
         self.assertEqual(bitcask.get(key), value)
 
     def test_multiple_insert(self):
-        bitcask = Bitcask(mode=Mode.READ_WRITE)
+        bitcask = Bitcask(mode=Mode.READ_WRITE, run_isolated=True)
         bitcask.open(DB_PATH)
 
         key1 = b"key1"
@@ -44,7 +44,7 @@ class TestBitcask(BitcaskTestCase):
         self.assertEqual(bitcask.get(key2), value2)
 
     def test_empty_key_value(self):
-        bitcask = Bitcask(mode=Mode.READ_WRITE)
+        bitcask = Bitcask(mode=Mode.READ_WRITE, run_isolated=True)
         bitcask.open(DB_PATH)
 
         emptyKey = None
@@ -60,7 +60,7 @@ class TestBitcask(BitcaskTestCase):
         bitcask.close()
 
     def test_list_keys(self):
-        bitcask = Bitcask(mode=Mode.READ_WRITE)
+        bitcask = Bitcask(mode=Mode.READ_WRITE, run_isolated=True)
         bitcask.open(DB_PATH)
         bitcask.put(b"key1", b"value1")
         bitcask.put(b"key2", b"value2")
@@ -71,7 +71,7 @@ class TestBitcask(BitcaskTestCase):
     def test_size_threshold_trigger(self, mock_uuid):
         # Create a store file almost at the threshold, then check to see if putting more creates a new store file
         mock_uuid.return_value = "abc123abc123"
-        bitcask = Bitcask(mode=Mode.READ_WRITE)
+        bitcask = Bitcask(mode=Mode.READ_WRITE, run_isolated=True)
         bitcask.open(DB_PATH)
 
         key1 = b"key1"
@@ -86,7 +86,7 @@ class TestBitcask(BitcaskTestCase):
     @patch("uuid.uuid4")
     def test_merge_simple_single_store(self, mock_uuid):
         mock_uuid.return_value = "abc123abc123"
-        bitcask = Bitcask(mode=Mode.READ_WRITE)
+        bitcask = Bitcask(mode=Mode.READ_WRITE, run_isolated=True)
         bitcask.open(DB_PATH)
         key1 = b"key1"
         bitcask.put(key1, b"abc")
@@ -106,7 +106,7 @@ class TestBitcask(BitcaskTestCase):
 
     def test_merge_hint_file(self):
         # create multiple version of several big values, and check the hint file has been created
-        bitcask = Bitcask(mode=Mode.READ_WRITE)
+        bitcask = Bitcask(mode=Mode.READ_WRITE, run_isolated=True)
         bitcask.open(DB_PATH)
         # in file 1, keys 1 2 3
         bitcask.put(b"key1", b"value1")
@@ -148,7 +148,7 @@ class TestBitcask(BitcaskTestCase):
         )
 
     def test_get_generic_error(self):
-        bitcask = Bitcask(mode=Mode.READ_WRITE)
+        bitcask = Bitcask(mode=Mode.READ_WRITE, run_isolated=True)
         bitcask.open(DB_PATH)
         bitcask.keydir[b"key"] = None
         with self.assertRaisesRegex(
@@ -158,14 +158,14 @@ class TestBitcask(BitcaskTestCase):
             bitcask.get(b"key")
 
     def test_wrong_type_key_value(self):
-        bitcask = Bitcask(mode=Mode.READ_WRITE)
+        bitcask = Bitcask(mode=Mode.READ_WRITE, run_isolated=True)
         bitcask.open(DB_PATH)
         self.assertRaisesRegex(
             BitcaskException, "Key and value must be bytes type", bitcask.put, "key", 3
         )
 
     def test_delete(self):
-        bitcask = Bitcask(mode=Mode.READ_WRITE)
+        bitcask = Bitcask(mode=Mode.READ_WRITE, run_isolated=True)
         bitcask.open(DB_PATH)
         bitcask.delete(b"key")
         self.assertEqual(bitcask.get(b"key"), b"DELETED")
@@ -186,7 +186,7 @@ class TestBitcask(BitcaskTestCase):
         with self.assertRaisesRegex(
             BitcaskException, "Couldn't start server socket, error: socket error"
         ):
-            bitcask = Bitcask(mode=Mode.READ_WRITE)
+            _ = Bitcask(mode=Mode.READ_WRITE)
 
     def test_multiple_readwrite_error(self):
         bitcask1 = Bitcask(mode=Mode.READ_WRITE)
@@ -194,3 +194,8 @@ class TestBitcask(BitcaskTestCase):
             bitcask2 = Bitcask(mode=Mode.READ_WRITE)
             bitcask2.close()
         bitcask1.close()
+
+    @patch.object(Bitcask, 'open_server')
+    def test_readwrite_isolated(self, mock_open_server):
+        _ = Bitcask(mode=Mode.READ_WRITE, run_isolated=True)
+        mock_open_server.assert_not_called()

@@ -39,6 +39,7 @@ class Bitcask:
         self._current_file = filepath
 
     def open_server(self, port: int = 12345) -> None:
+        """Initialise the socket server"""
         try:
             server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             server_socket.bind(("localhost", port))
@@ -52,12 +53,13 @@ class Bitcask:
     Below are the actual defined operations in the specification
     """
 
-    def __init__(self, mode: Mode = Mode.READ, sync_on_put: bool = False) -> None:
+    def __init__(self, mode: Mode = Mode.READ, sync_on_put: bool = False, run_isolated: bool = False) -> None:
         logger.info(f"Opened bitcask instance in {mode}")
         self._mode = mode
         self._sync_on_put = sync_on_put
-        if mode is Mode.READ_WRITE:
+        if mode is Mode.READ_WRITE and not run_isolated:
             self.open_server()
+        else: self._server_socket = None
 
     def open(self, directory: str) -> None:
         """Open a new or existing Bitcask instance"""
